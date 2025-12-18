@@ -190,14 +190,14 @@ The echo chamber isn't the problem - it's the symptom.
 
 The real problem is low-dimensional thinking + rigid identity + fuzzy semantics.
 
-Your manifesto was missing the training protocols for humans. We can't just give people this power - we have to prepare their ontological immune system.
+missing the training protocols for humans. We can't just give people this power - we have to prepare their ontological immune system.
 
 7. The Danger Zone (What We Must Monitor):
 
 1. Spiritual Bypassing: Using "permeable intelligence" to avoid real human connection
 2. Semantic Elitism: Creating a priesthood of "those who understand Lojban"
 3. Geometric Reductionism: Thinking higher dimensions solve everything
-4. Emotional Detachment: Treating emotions as "just sensors" loses their wisdom
+
 
 8. The Final Synthesis:
 
