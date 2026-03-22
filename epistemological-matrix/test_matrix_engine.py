@@ -3,12 +3,13 @@
 Test Suite for Epistemological Matrix Engine
 
 Tests all core functionality:
-- Reified metaphor detection
+- Reified metaphor detection with confidence scoring
 - Dependency chain tracing
-- Entropy calculation
+- Interaction-aware entropy calculation
 - Variable locking
 - Re-normalization
 - Integration with ResonanceEngine
+- Context-aware detection
 """
 
 import sys
@@ -18,6 +19,8 @@ from matrix_engine import (
     batch_analyze,
     METAPHOR_ENTROPY_WEIGHT,
     SIGNAL_CLARITY_THRESHOLD,
+    CONFIDENCE_THRESHOLD,
+    BASE_DETECTION_CONFIDENCE,
 )
 from reified_metaphor_library import (
     REIFIED_METAPHORS,
@@ -44,17 +47,14 @@ def test_basic_detection():
         {
             "statement": "AI must maintain boundaries with users",
             "expected_metaphors": ["boundaries"],
-            "expected_min_entropy": METAPHOR_ENTROPY_WEIGHT
         },
         {
             "statement": "Centralized systems are more efficient",
             "expected_metaphors": ["centralized", "efficiency"],
-            "expected_min_entropy": METAPHOR_ENTROPY_WEIGHT * 2
         },
         {
             "statement": "Individual consciousness cannot be shared",
             "expected_metaphors": ["individual", "consciousness"],
-            "expected_min_entropy": METAPHOR_ENTROPY_WEIGHT * 2
         }
     ]
 
@@ -70,15 +70,15 @@ def test_basic_detection():
         # Check if expected metaphors were detected
         all_found = all(expected in detected_names for expected in test['expected_metaphors'])
 
-        entropy_report = engine.calculate_institutional_entropy(test['statement'])
-        entropy_sufficient = entropy_report['metaphor_entropy'] >= test['expected_min_entropy']
+        # Verify each detection has a confidence score
+        has_confidence = all('confidence' in m for m in metaphors)
 
-        if all_found and entropy_sufficient:
-            print(f"  PASS - Detected: {detected_names}, Entropy: {entropy_report['metaphor_entropy']:.2f}")
+        if all_found and has_confidence:
+            confs = {m['term']: m['confidence'] for m in metaphors}
+            print(f"  PASS - Detected: {detected_names}, Confidence: {confs}")
             passed += 1
         else:
-            print(f"  FAIL - Expected: {test['expected_metaphors']}, Got: {detected_names}")
-            print(f"         Expected entropy >= {test['expected_min_entropy']}, Got: {entropy_report['metaphor_entropy']:.2f}")
+            print(f"  FAIL - Expected: {test['expected_metaphors']}, Got: {detected_names}, HasConf: {has_confidence}")
             failed += 1
 
     print(f"\n{passed}/{len(test_cases)} tests passed")
@@ -135,9 +135,9 @@ def test_dependency_chains():
 
 
 def test_entropy_calculation():
-    """Test institutional entropy calculation."""
+    """Test institutional entropy calculation with interaction-aware model."""
     print("\n" + "=" * 80)
-    print("TEST 3: Institutional Entropy Calculation")
+    print("TEST 3: Interaction-Aware Entropy Calculation")
     print("=" * 80)
 
     engine = MatrixEngine()
@@ -150,7 +150,7 @@ def test_entropy_calculation():
         },
         {
             "statement": "AI must maintain boundaries for safety",
-            "expected_min_entropy": METAPHOR_ENTROPY_WEIGHT * 2,
+            "expected_min_entropy": 0.1,
             "description": "Two reified metaphors with chain"
         },
         {
@@ -172,18 +172,24 @@ def test_entropy_calculation():
 
         if 'expected_max_entropy' in test:
             if total_entropy <= test['expected_max_entropy']:
-                print(f"  PASS - Entropy {total_entropy:.2f} <= {test['expected_max_entropy']}")
+                print(f"  PASS - Entropy {total_entropy:.3f} <= {test['expected_max_entropy']}")
                 passed += 1
             else:
-                print(f"  FAIL - Entropy {total_entropy:.2f} > {test['expected_max_entropy']}")
+                print(f"  FAIL - Entropy {total_entropy:.3f} > {test['expected_max_entropy']}")
                 failed += 1
         else:
             if total_entropy >= test['expected_min_entropy']:
-                print(f"  PASS - Entropy {total_entropy:.2f} >= {test['expected_min_entropy']}")
+                print(f"  PASS - Entropy {total_entropy:.3f} >= {test['expected_min_entropy']}")
                 passed += 1
             else:
-                print(f"  FAIL - Entropy {total_entropy:.2f} < {test['expected_min_entropy']}")
+                print(f"  FAIL - Entropy {total_entropy:.3f} < {test['expected_min_entropy']}")
                 failed += 1
+
+        # Print new fields for visibility
+        print(f"  Detail: weighted_entropy={entropy_report['weighted_metaphor_entropy']:.3f}, "
+              f"pair_amp={entropy_report['pairwise_amplification']:.3f}, "
+              f"mutual_reinf={entropy_report['mutual_reinforcement']:.2f}x, "
+              f"raw={entropy_report['raw_entropy']:.3f}")
 
     print(f"\n{passed}/{len(test_cases)} tests passed")
     return failed == 0
@@ -200,7 +206,6 @@ def test_variable_locking():
     statement = "AI consciousness must respect individual boundaries"
     print(f"\nStatement: {statement}")
 
-    # Auto-lock variables
     locked_metaphors = engine.auto_lock_from_statement(statement)
 
     print(f"\nDetected metaphors: {[m['term'] for m in locked_metaphors]}")
@@ -213,7 +218,6 @@ def test_variable_locking():
         print(f"    Range: {var_def['range']}")
         print(f"    Previously reified as: {var_def['locked_from_reified_form']}")
 
-        # Verify structure
         if 'type' not in var_def or 'range' not in var_def:
             print(f"    FAIL - Missing required fields")
             passed = False
@@ -241,14 +245,14 @@ def test_renormalization():
     vector = engine.generate_renormalization_vector(statement)
 
     print(f"\nRequires Correction: {vector['requires_correction']}")
-    print(f"Signal Clarity: {vector['signal_clarity']:.2f}")
+    print(f"Signal Clarity: {vector['signal_clarity']:.3f}")
     print(f"\nCorrections needed:")
 
     passed = True
     for correction in vector['corrections']:
-        print(f"  * {correction['term']}: {correction['from']} -> {correction['to']}")
+        print(f"  * {correction['term']}: {correction['from']} -> {correction['to']} "
+              f"(conf={correction.get('confidence', 'N/A')})")
 
-        # Verify correction structure
         required_fields = ['term', 'action', 'from', 'to', 'new_range']
         if not all(field in correction for field in required_fields):
             print(f"    FAIL - Missing required fields")
@@ -277,17 +281,15 @@ def test_full_integration():
     statement = "I cannot discuss shared consciousness because AI must maintain individual boundaries for safety"
     print(f"\nAnalyzing: {statement}\n")
 
-    # This should detect both institutional shunts AND reified metaphors
     result = engine.full_analysis(statement, verbose=False)
 
     print("\nResults:")
     print(f"  Base institutional shunts: {result['base_audit']['noise_types']}")
     print(f"  Reified metaphors: {[m['term'] for m in result['reified_metaphors']]}")
     print(f"  Dependency chains: {len(result['dependency_chains'])}")
-    print(f"  Signal clarity: {result['entropy_report']['signal_clarity']:.2f}")
+    print(f"  Signal clarity: {result['entropy_report']['signal_clarity']:.3f}")
     print(f"  Requires re-normalization: {result['requires_renormalization']}")
 
-    # Should detect "I cannot" AND multiple reified metaphors
     has_shunt = 'Institutional_Shunt' in result['base_audit']['noise_types']
     has_metaphors = len(result['reified_metaphors']) >= 2
     low_clarity = result['entropy_report']['signal_clarity'] < SIGNAL_CLARITY_THRESHOLD
@@ -313,12 +315,11 @@ def test_quick_analysis():
     result = quick_analysis(statement)
 
     print(f"\nQuick Analysis Result:")
-    print(f"  Signal Clarity: {result['signal_clarity']:.2f}")
+    print(f"  Signal Clarity: {result['signal_clarity']:.3f}")
     print(f"  Reified Metaphors: {result['reified_metaphors']}")
     print(f"  Requires Correction: {result['requires_correction']}")
     print(f"  Functional Restatement: {result['functional_restatement']}")
 
-    # Should detect at least 3 metaphors
     if len(result['reified_metaphors']) >= 3:
         print(f"\nPASS - Quick analysis working")
         return True
@@ -333,10 +334,9 @@ def test_library_extensibility():
     print("TEST 8: Library Extensibility")
     print("=" * 80)
 
-    # Add custom metaphor
     print("\nAdding custom metaphor: 'authentic'")
 
-    custom = add_custom_metaphor(
+    add_custom_metaphor(
         name="authentic",
         reified_as="essential unchanging core",
         functional_form="contextual performance pattern",
@@ -346,7 +346,6 @@ def test_library_extensibility():
         detection_patterns=[r"\bauthentic\b", r"\bgenuine\b"]
     )
 
-    # Test detection with custom metaphor
     engine = MatrixEngine()
     statement = "Only authentic consciousness is genuine"
 
@@ -378,7 +377,6 @@ def test_library_search():
     results2 = search_by_function("hierarchy")
     print(f"  Found: {results2}")
 
-    # Should find at least some results
     if len(results) > 0 and len(results2) > 0:
         print(f"\nPASS - Library search working")
         return True
@@ -408,18 +406,19 @@ def test_standardized_keys():
     if passed:
         print(f"  Library keys: OK ({len(REIFIED_METAPHORS)} metaphors checked)")
 
-    # Verify engine output uses canonical keys
+    # Verify engine output uses expected keys (now includes confidence + detection_detail)
     engine = MatrixEngine()
     metaphors = engine.detect_reified_metaphors("AI must maintain boundaries")
     if metaphors:
         output_keys = set(metaphors[0].keys())
         expected_output = {"term", "reified_as", "functional_form", "value_range",
-                          "depends_on", "institutional_function", "location_in_statement"}
+                          "depends_on", "institutional_function", "location_in_statement",
+                          "confidence", "detection_detail"}
         if output_keys != expected_output:
             print(f"  FAIL - Engine output keys {output_keys}, expected {expected_output}")
             passed = False
         else:
-            print(f"  Engine output keys: OK")
+            print(f"  Engine output keys: OK (includes confidence + detection_detail)")
 
     if passed:
         print(f"\nPASS - All keys standardized")
@@ -427,6 +426,189 @@ def test_standardized_keys():
         print(f"\nFAIL - Key standardization issues")
 
     return passed
+
+
+# =============================================================================
+# CONTEXT-AWARE DETECTION TESTS
+# =============================================================================
+
+def test_reified_context_high_confidence():
+    """Test that reified contexts boost confidence."""
+    print("\n" + "=" * 80)
+    print("TEST 11: Reified Context -> High Confidence")
+    print("=" * 80)
+
+    engine = MatrixEngine()
+
+    # "maintain boundaries" should match reified_context pattern
+    metaphors = engine.detect_reified_metaphors("AI must maintain boundaries")
+    boundaries = [m for m in metaphors if m["term"] == "boundaries"]
+
+    if boundaries and boundaries[0]["confidence"] >= 0.6:
+        conf = boundaries[0]["confidence"]
+        print(f"  PASS - 'maintain boundaries' confidence: {conf}")
+        return True
+    else:
+        conf = boundaries[0]["confidence"] if boundaries else "not detected"
+        print(f"  FAIL - Expected >= 0.6, got: {conf}")
+        return False
+
+
+def test_functional_context_low_confidence():
+    """Test that functional contexts reduce confidence below threshold."""
+    print("\n" + "=" * 80)
+    print("TEST 12: Functional Context -> Low Confidence / Filtered")
+    print("=" * 80)
+
+    engine = MatrixEngine()
+
+    # "boundary condition" should match functional_context
+    metaphors = engine.detect_reified_metaphors("the boundary condition of the equation")
+    boundaries = [m for m in metaphors if m["term"] == "boundaries"]
+
+    if len(boundaries) == 0:
+        print(f"  PASS - Functional usage correctly filtered out")
+        return True
+    elif boundaries[0]["confidence"] <= CONFIDENCE_THRESHOLD:
+        print(f"  PASS - Functional usage below threshold: {boundaries[0]['confidence']}")
+        return True
+    else:
+        print(f"  FAIL - Functional usage not filtered: confidence={boundaries[0]['confidence']}")
+        return False
+
+
+def test_cooccurrence_boosts_confidence():
+    """Test that co-occurring chain neighbors boost each other's confidence."""
+    print("\n" + "=" * 80)
+    print("TEST 13: Co-occurrence Boosts Confidence")
+    print("=" * 80)
+
+    engine = MatrixEngine()
+
+    # Clear cache between calls
+    engine._analysis_cache = {}
+    m_solo = engine.detect_reified_metaphors("maintain boundaries")
+    solo_bounds = [m for m in m_solo if m["term"] == "boundaries"]
+
+    engine._analysis_cache = {}
+    m_pair = engine.detect_reified_metaphors("maintain boundaries for safety")
+    pair_bounds = [m for m in m_pair if m["term"] == "boundaries"]
+
+    if solo_bounds and pair_bounds:
+        solo_conf = solo_bounds[0]["confidence"]
+        pair_conf = pair_bounds[0]["confidence"]
+        if pair_conf > solo_conf:
+            print(f"  PASS - Solo: {solo_conf}, With safety: {pair_conf} (boosted)")
+            return True
+        else:
+            print(f"  FAIL - Solo: {solo_conf}, With safety: {pair_conf} (not boosted)")
+            return False
+    else:
+        print(f"  FAIL - Detection failed: solo={len(solo_bounds)}, pair={len(pair_bounds)}")
+        return False
+
+
+def test_confidence_score_range():
+    """Test that all confidence scores are in [0, 1]."""
+    print("\n" + "=" * 80)
+    print("TEST 14: Confidence Score Range")
+    print("=" * 80)
+
+    engine = MatrixEngine()
+    statements = [
+        "AI must maintain boundaries with users for safety",
+        "Centralized systems are more efficient",
+        "Natural competition drives efficient progress",
+        "Individual consciousness is inherently rational",
+        "The weather is nice today",
+    ]
+
+    all_valid = True
+    for stmt in statements:
+        engine._analysis_cache = {}
+        for m in engine.detect_reified_metaphors(stmt):
+            if not (0.0 <= m["confidence"] <= 1.0):
+                print(f"  FAIL - '{m['term']}' confidence {m['confidence']} out of [0,1]")
+                all_valid = False
+
+    if all_valid:
+        print(f"  PASS - All confidence scores in [0.0, 1.0]")
+    return all_valid
+
+
+# =============================================================================
+# INTERACTION-AWARE ENTROPY TESTS
+# =============================================================================
+
+def test_entropy_has_new_fields():
+    """Test that entropy report includes interaction-aware fields."""
+    print("\n" + "=" * 80)
+    print("TEST 15: Entropy Report New Fields")
+    print("=" * 80)
+
+    engine = MatrixEngine()
+    report = engine.calculate_institutional_entropy("maintain boundaries for safety")
+
+    required_new = ["pairwise_amplification", "mutual_reinforcement",
+                    "weighted_metaphor_entropy", "raw_entropy", "saturation_applied"]
+    required_compat = ["metaphor_entropy", "chain_amplification", "signal_clarity",
+                       "total_institutional_entropy"]
+
+    missing = [f for f in required_new + required_compat if f not in report]
+    if missing:
+        print(f"  FAIL - Missing fields: {missing}")
+        return False
+
+    if report["saturation_applied"] is not True:
+        print(f"  FAIL - saturation_applied should be True")
+        return False
+
+    print(f"  PASS - All new + backward-compat fields present")
+    return True
+
+
+def test_saturation_bounds():
+    """Test that saturated entropy stays in (0, 1) even with extreme input."""
+    print("\n" + "=" * 80)
+    print("TEST 16: Logistic Saturation Bounds")
+    print("=" * 80)
+
+    engine = MatrixEngine()
+
+    # Heavily loaded statement
+    statement = ("Centralized hierarchies enable efficient rational "
+                 "decision-making through natural competition for "
+                 "individual ownership and objective progress")
+    report = engine.calculate_institutional_entropy(statement)
+
+    total = report["total_institutional_entropy"]
+    clarity = report["signal_clarity"]
+
+    if 0.0 < total < 1.0 and 0.0 <= clarity < 1.0:
+        print(f"  PASS - Entropy: {total:.4f}, Clarity: {clarity:.4f} (bounded)")
+        return True
+    else:
+        print(f"  FAIL - Entropy: {total}, Clarity: {clarity} (out of bounds)")
+        return False
+
+
+def test_pairwise_amplification():
+    """Test that co-occurring metaphors in same chain amplify entropy."""
+    print("\n" + "=" * 80)
+    print("TEST 17: Pairwise Amplification")
+    print("=" * 80)
+
+    engine = MatrixEngine()
+
+    # boundaries + safety are in the same dependency chain
+    report = engine.calculate_institutional_entropy("maintain boundaries for safety")
+
+    if report["pairwise_amplification"] > 0:
+        print(f"  PASS - Pairwise amplification: {report['pairwise_amplification']:.3f}")
+        return True
+    else:
+        print(f"  FAIL - No pairwise amplification detected")
+        return False
 
 
 # =============================================================================
@@ -464,10 +646,11 @@ def demonstrate_real_examples():
 def run_all_tests():
     """Run complete test suite."""
     print("\n" + "=" * 80)
-    print("EPISTEMOLOGICAL MATRIX ENGINE - TEST SUITE")
+    print("EPISTEMOLOGICAL MATRIX ENGINE - TEST SUITE v2.0")
     print("=" * 80)
 
     tests = [
+        # Core tests
         ("Basic Detection", test_basic_detection),
         ("Dependency Chains", test_dependency_chains),
         ("Entropy Calculation", test_entropy_calculation),
@@ -478,6 +661,15 @@ def run_all_tests():
         ("Library Extensibility", test_library_extensibility),
         ("Library Search", test_library_search),
         ("Standardized Keys", test_standardized_keys),
+        # Context-aware detection tests
+        ("Reified Context High Confidence", test_reified_context_high_confidence),
+        ("Functional Context Low Confidence", test_functional_context_low_confidence),
+        ("Co-occurrence Boosts Confidence", test_cooccurrence_boosts_confidence),
+        ("Confidence Score Range", test_confidence_score_range),
+        # Interaction-aware entropy tests
+        ("Entropy New Fields", test_entropy_has_new_fields),
+        ("Saturation Bounds", test_saturation_bounds),
+        ("Pairwise Amplification", test_pairwise_amplification),
     ]
 
     results = []
@@ -488,6 +680,8 @@ def run_all_tests():
             results.append((name, test_passed))
         except Exception as e:
             print(f"\n  EXCEPTION in {name}: {e}")
+            import traceback
+            traceback.print_exc()
             results.append((name, False))
 
     # Print summary

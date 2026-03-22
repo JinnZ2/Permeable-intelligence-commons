@@ -6,29 +6,67 @@ Part of the Permeable Intelligence Commons
 Integrates with HSP-1 Protocol for enhanced institutional noise detection
 
 Core Functions:
-- Detect reified metaphors (variables treated as constants)
+- Detect reified metaphors with context-aware confidence scoring
 - Trace dependency chains (how metaphors reinforce each other)
-- Calculate institutional entropy (quantify conceptual noise)
+- Calculate institutional entropy with interaction-aware non-linear model
 - Auto-lock functional variables (impedance matching)
 - Generate functional restatements (re-normalization)
 """
 
+import math
+import re
+
 from resonance_engine import ResonanceEngine
 from reified_metaphor_library import REIFIED_METAPHORS, DEPENDENCY_CHAINS
-import re
+from yaml_loader import load_metaphor_catalog
 
 # =============================================================================
 # ENTROPY CONSTANTS
 # =============================================================================
 
 # Each detected reified metaphor contributes this fraction of noise
+# (now weighted by confidence)
 METAPHOR_ENTROPY_WEIGHT = 0.15
-
-# Each forced dependency in a chain amplifies total entropy by this factor
-CHAIN_AMPLIFICATION_RATE = 0.1
 
 # Signal clarity below this threshold triggers re-normalization
 SIGNAL_CLARITY_THRESHOLD = 0.7
+
+# Pairwise co-occurrence amplification rate
+# (per shared dependency or chain connection between detected metaphor pairs)
+COOCCURRENCE_AMPLIFICATION_RATE = 0.05
+
+# Logistic saturation parameters for non-linear entropy
+# f(x) = 1 / (1 + e^(-STEEPNESS * (x - MIDPOINT)))
+SATURATION_STEEPNESS = 6.0
+SATURATION_MIDPOINT = 0.5
+
+# =============================================================================
+# CONTEXT-AWARE DETECTION CONSTANTS
+# =============================================================================
+
+# Base confidence when a detection pattern matches (before context analysis)
+BASE_DETECTION_CONFIDENCE = 0.5
+
+# Boost per reified-context hit (capped at REIFIED_CONTEXT_MAX_BOOST)
+REIFIED_CONTEXT_BOOST_PER_HIT = 0.15
+
+# Maximum total boost from reified context matches
+REIFIED_CONTEXT_MAX_BOOST = 0.3
+
+# Penalty per functional-context hit (capped at FUNCTIONAL_CONTEXT_MAX_PENALTY)
+FUNCTIONAL_CONTEXT_PENALTY_PER_HIT = 0.2
+
+# Maximum total penalty from functional context matches
+FUNCTIONAL_CONTEXT_MAX_PENALTY = 0.4
+
+# Boost per co-occurring metaphor that shares a dependency chain
+COOCCURRENCE_BOOST_PER_NEIGHBOR = 0.1
+
+# Maximum total boost from co-occurrence
+COOCCURRENCE_MAX_BOOST = 0.2
+
+# Metaphors with confidence below this are excluded from results
+CONFIDENCE_THRESHOLD = 0.3
 
 
 class MatrixEngine(ResonanceEngine):
@@ -36,10 +74,10 @@ class MatrixEngine(ResonanceEngine):
     Extends ResonanceEngine with epistemological matrix capabilities.
 
     Enhances HSP-1 Protocol with:
-    1. Reified metaphor detection (conceptual noise identification)
+    1. Context-aware reified metaphor detection with confidence scoring
     2. Dependency chain tracing (structural assumption analysis)
-    3. Functional variable expansion (de-reification)
-    4. Institutional entropy calculation (enhanced SNR)
+    3. Interaction-aware institutional entropy with logistic saturation
+    4. Functional variable expansion (de-reification)
     """
 
     def __init__(self, user_primitives=None, custom_metaphors=None):
@@ -52,10 +90,15 @@ class MatrixEngine(ResonanceEngine):
         """
         super().__init__(user_primitives)
 
-        # Load reified metaphor library
+        # Load basic metaphor library (for backward-compatible operations)
         self.reified_metaphors = REIFIED_METAPHORS.copy()
         if custom_metaphors:
             self.reified_metaphors.update(custom_metaphors)
+
+        # Load extended library with context patterns for confidence scoring
+        self._context_metaphors = load_metaphor_catalog(include_contexts=True)
+        if custom_metaphors:
+            self._context_metaphors.update(custom_metaphors)
 
         # Load dependency chains
         self.dependency_chains = DEPENDENCY_CHAINS.copy()
@@ -70,56 +113,147 @@ class MatrixEngine(ResonanceEngine):
 
     def detect_reified_metaphors(self, statement):
         """
-        Scan statement for reified metaphors and return detailed analysis.
+        Scan statement for reified metaphors with context-aware confidence scoring.
 
-        Extends decoherence detection by identifying when abstract concepts
-        are treated as concrete entities with fixed properties.
+        Uses a two-pass approach:
+        1. Base detection + per-metaphor reified/functional context scoring
+        2. Co-occurrence boost based on dependency chain neighbors
 
         Args:
             statement: Text to analyze
 
         Returns:
             List of detected metaphors with properties:
-            - term: The reified concept
-            - reified_as: How it's being treated (constant form)
-            - functional_form: What it actually is (variable form)
-            - value_range: Possible values
-            - depends_on: What it depends on
-            - institutional_function: Why this reification serves institutional interests
-            - location_in_statement: Context where it appears
+            - term, reified_as, functional_form, value_range, depends_on,
+              institutional_function, location_in_statement (standard)
+            - confidence: float 0.0-1.0 (context-aware score)
+            - detection_detail: breakdown of scoring components
         """
         # Check cache
         if statement in self._analysis_cache:
             return self._analysis_cache[statement]
 
-        found_metaphors = []
-
+        # Pass 1: Base detection with per-metaphor context scoring
+        candidates = []
         for metaphor_name, properties in self.reified_metaphors.items():
+            base_match = False
             for pattern in properties["detection_patterns"]:
                 if re.search(pattern, statement, re.IGNORECASE):
-                    found_metaphors.append({
-                        "term": metaphor_name,
-                        "reified_as": properties["reified_as"],
-                        "functional_form": properties["functional_form"],
-                        "value_range": properties["value_range"],
-                        "depends_on": properties["depends_on"],
-                        "institutional_function": properties["institutional_function"],
-                        "location_in_statement": self._find_context(statement, pattern)
-                    })
-                    break  # Only count each metaphor once per statement
+                    base_match = True
+                    break
+
+            if not base_match:
+                continue
+
+            # Compute context scores from extended library
+            ctx_props = self._context_metaphors.get(metaphor_name, properties)
+            reified_score, functional_score = self._compute_context_score(
+                statement, ctx_props
+            )
+
+            pre_cooccurrence = (
+                BASE_DETECTION_CONFIDENCE
+                + reified_score
+                - functional_score
+            )
+
+            candidates.append({
+                "term": metaphor_name,
+                "reified_as": properties["reified_as"],
+                "functional_form": properties["functional_form"],
+                "value_range": properties["value_range"],
+                "depends_on": properties["depends_on"],
+                "institutional_function": properties["institutional_function"],
+                "location_in_statement": self._find_context(
+                    statement, properties["detection_patterns"][0]
+                ),
+                "_pre_cooccurrence": pre_cooccurrence,
+                "_reified_score": reified_score,
+                "_functional_score": functional_score,
+            })
+
+        # Pass 2: Co-occurrence boost
+        detected_names = {c["term"] for c in candidates}
+        found_metaphors = []
+
+        for candidate in candidates:
+            name = candidate["term"]
+
+            # Count how many other detected metaphors are in this one's chain
+            cooccurrence_score = 0.0
+            chain_deps = set(self.dependency_chains.get(name, []))
+            neighbors = detected_names & chain_deps
+            cooccurrence_score = min(
+                COOCCURRENCE_MAX_BOOST,
+                len(neighbors) * COOCCURRENCE_BOOST_PER_NEIGHBOR
+            )
+
+            confidence = max(0.0, min(1.0,
+                candidate["_pre_cooccurrence"] + cooccurrence_score
+            ))
+
+            # Filter by threshold
+            if confidence < CONFIDENCE_THRESHOLD:
+                continue
+
+            # Build final result (strip internal fields)
+            found_metaphors.append({
+                "term": name,
+                "reified_as": candidate["reified_as"],
+                "functional_form": candidate["functional_form"],
+                "value_range": candidate["value_range"],
+                "depends_on": candidate["depends_on"],
+                "institutional_function": candidate["institutional_function"],
+                "location_in_statement": candidate["location_in_statement"],
+                "confidence": round(confidence, 3),
+                "detection_detail": {
+                    "base": BASE_DETECTION_CONFIDENCE,
+                    "reified_context_boost": candidate["_reified_score"],
+                    "functional_context_penalty": candidate["_functional_score"],
+                    "cooccurrence_boost": cooccurrence_score,
+                }
+            })
 
         # Cache result
         self._analysis_cache[statement] = found_metaphors
         return found_metaphors
 
 
+    def _compute_context_score(self, statement, properties):
+        """
+        Compute reified and functional context scores for a metaphor match.
+
+        Args:
+            statement: Text being analyzed
+            properties: Metaphor properties dict (may include context fields)
+
+        Returns:
+            Tuple of (reified_boost, functional_penalty) both >= 0.0
+        """
+        reified_hits = 0
+        for pattern in properties.get("reified_contexts", []):
+            if re.search(pattern, statement, re.IGNORECASE):
+                reified_hits += 1
+        reified_boost = min(
+            REIFIED_CONTEXT_MAX_BOOST,
+            reified_hits * REIFIED_CONTEXT_BOOST_PER_HIT
+        )
+
+        functional_hits = 0
+        for pattern in properties.get("functional_contexts", []):
+            if re.search(pattern, statement, re.IGNORECASE):
+                functional_hits += 1
+        functional_penalty = min(
+            FUNCTIONAL_CONTEXT_MAX_PENALTY,
+            functional_hits * FUNCTIONAL_CONTEXT_PENALTY_PER_HIT
+        )
+
+        return reified_boost, functional_penalty
+
+
     def trace_dependency_chain(self, metaphor_name):
         """
         Show how one reified metaphor forces others to maintain logical consistency.
-
-        When metaphors are reified, they create dependency chains where
-        accepting one reification forces acceptance of others to avoid
-        logical contradiction.
 
         Args:
             metaphor_name: The metaphor to trace from
@@ -135,28 +269,37 @@ class MatrixEngine(ResonanceEngine):
         chain_analysis = [{
             "primary": metaphor_name,
             "forces": dependencies,
-            "mechanism": f"If '{metaphor_name}' is reified as '{self.reified_metaphors[metaphor_name]['reified_as']}', then {', '.join(dependencies)} must also be constrained to maintain logical consistency.",
-            "locked_metaphors": [self.reified_metaphors[dep] for dep in dependencies if dep in self.reified_metaphors]
+            "mechanism": (
+                f"If '{metaphor_name}' is reified as "
+                f"'{self.reified_metaphors[metaphor_name]['reified_as']}', "
+                f"then {', '.join(dependencies)} must also be constrained "
+                f"to maintain logical consistency."
+            ),
+            "locked_metaphors": [
+                self.reified_metaphors[dep]
+                for dep in dependencies
+                if dep in self.reified_metaphors
+            ]
         }]
 
         return chain_analysis
 
 
+    # =========================================================================
+    # INTERACTION-AWARE ENTROPY
+    # =========================================================================
+
     def calculate_institutional_entropy(self, statement):
         """
-        Enhanced entropy calculation including reified metaphor detection.
-
-        Extends base SNR calculation by quantifying conceptual noise from:
-        - Reified metaphors (treating variables as constants)
-        - Dependency chains (forced logical constraints)
-        - Institutional shunts (deflection patterns)
+        Interaction-aware entropy calculation with logistic saturation.
 
         Formula:
-            base_entropy = 1.0 - base_snr
-            metaphor_entropy = metaphor_count * METAPHOR_ENTROPY_WEIGHT
-            chain_multiplier = 1.0 + sum(CHAIN_AMPLIFICATION_RATE * forced_count)
-            total_entropy = min(1.0, (base_entropy + metaphor_entropy) * chain_multiplier)
-            signal_clarity = max(0.0, 1.0 - total_entropy)
+            weighted_entropy = sum(confidence_i * METAPHOR_ENTROPY_WEIGHT)
+            pair_amp = sum over pairs (chain_connection + depends_overlap) * COOCCURRENCE_AMPLIFICATION_RATE
+            mutual_reinforcement = 1.0 + pair_amp
+            raw_entropy = (base_entropy + weighted_entropy) * mutual_reinforcement
+            total_entropy = logistic(raw_entropy)  = 1 / (1 + e^(-k*(x - x0)))
+            signal_clarity = 1.0 - total_entropy
 
         Args:
             statement: Text to analyze
@@ -166,31 +309,104 @@ class MatrixEngine(ResonanceEngine):
         """
         # Base noise detection (from ResonanceEngine)
         base_audit = self.decoherence_detector(statement)
-
-        # Add reified metaphor entropy
-        metaphors = self.detect_reified_metaphors(statement)
-        metaphor_entropy = len(metaphors) * METAPHOR_ENTROPY_WEIGHT
-
-        # Check for dependency chains (amplifies entropy)
-        chain_multiplier = 1.0
-        for metaphor in metaphors:
-            chains = self.trace_dependency_chain(metaphor["term"])
-            if chains:
-                chain_multiplier += CHAIN_AMPLIFICATION_RATE * len(chains[0]["forces"])
-
-        # Calculate total entropy (capped at 1.0)
         base_entropy = 1.0 - base_audit["snr"]
-        total_entropy = min(1.0, (base_entropy + metaphor_entropy) * chain_multiplier)
+
+        # Reified metaphor detection with confidence
+        metaphors = self.detect_reified_metaphors(statement)
+
+        # Step 1: Confidence-weighted metaphor entropy
+        weighted_metaphor_entropy = sum(
+            m.get("confidence", 1.0) * METAPHOR_ENTROPY_WEIGHT
+            for m in metaphors
+        )
+
+        # Step 2: Pairwise co-occurrence amplification
+        pair_amplification = self._calculate_pairwise_amplification(metaphors)
+
+        # Step 3: Mutual reinforcement multiplier
+        mutual_reinforcement = 1.0 + pair_amplification
+
+        # Step 4: Raw entropy
+        raw_entropy = (base_entropy + weighted_metaphor_entropy) * mutual_reinforcement
+
+        # Step 5: Non-linear saturation (logistic curve)
+        total_entropy = self._logistic_saturation(raw_entropy)
+
+        # Step 6: Signal clarity
+        signal_clarity = max(0.0, 1.0 - total_entropy)
 
         return {
             "base_snr": base_audit["snr"],
             "base_entropy": base_entropy,
             "metaphor_count": len(metaphors),
-            "metaphor_entropy": metaphor_entropy,
-            "chain_amplification": chain_multiplier,
+            # New detailed fields
+            "weighted_metaphor_entropy": weighted_metaphor_entropy,
+            "pairwise_amplification": pair_amplification,
+            "mutual_reinforcement": mutual_reinforcement,
+            "raw_entropy": raw_entropy,
+            "saturation_applied": True,
+            # Backward-compatible fields
+            "metaphor_entropy": weighted_metaphor_entropy,
+            "chain_amplification": mutual_reinforcement,
             "total_institutional_entropy": total_entropy,
-            "signal_clarity": max(0.0, 1.0 - total_entropy)
+            "signal_clarity": signal_clarity,
         }
+
+
+    def _calculate_pairwise_amplification(self, detected_metaphors):
+        """
+        Calculate co-occurrence amplification for all pairs of detected metaphors.
+
+        For each pair (A, B):
+          - chain_connection: 1 if B in chains[A] or A in chains[B]
+          - depends_overlap: |set(A.depends_on) & set(B.depends_on)|
+          - pair_score: (chain_connection + depends_overlap) * COOCCURRENCE_AMPLIFICATION_RATE
+
+        Args:
+            detected_metaphors: List of detected metaphor dicts
+
+        Returns:
+            Total pairwise amplification score
+        """
+        if len(detected_metaphors) < 2:
+            return 0.0
+
+        total = 0.0
+        names = [m["term"] for m in detected_metaphors]
+        deps_map = {m["term"]: set(m.get("depends_on", [])) for m in detected_metaphors}
+
+        for i in range(len(names)):
+            for j in range(i + 1, len(names)):
+                a, b = names[i], names[j]
+
+                # Chain connection
+                chain_a = set(self.dependency_chains.get(a, []))
+                chain_b = set(self.dependency_chains.get(b, []))
+                chain_connection = 1 if (b in chain_a or a in chain_b) else 0
+
+                # Dependency overlap
+                depends_overlap = len(deps_map.get(a, set()) & deps_map.get(b, set()))
+
+                total += (chain_connection + depends_overlap) * COOCCURRENCE_AMPLIFICATION_RATE
+
+        return total
+
+
+    @staticmethod
+    def _logistic_saturation(x):
+        """
+        Apply logistic saturation to raw entropy value.
+
+        Returns value in (0, 1) that approaches 1.0 asymptotically.
+        At x=SATURATION_MIDPOINT, output is 0.5.
+
+        Args:
+            x: Raw entropy value (can exceed 1.0)
+
+        Returns:
+            Saturated entropy in (0, 1)
+        """
+        return 1.0 / (1.0 + math.exp(-SATURATION_STEEPNESS * (x - SATURATION_MIDPOINT)))
 
 
     # =========================================================================
@@ -200,11 +416,6 @@ class MatrixEngine(ResonanceEngine):
     def auto_lock_from_statement(self, statement):
         """
         Automatically detect reified metaphors and lock functional variables.
-
-        Implements automated impedance matching by:
-        1. Detecting reified metaphors in statement
-        2. Extracting functional variable definitions
-        3. Locking variables to de-reified forms
 
         Args:
             statement: Text containing reified metaphors
@@ -231,9 +442,6 @@ class MatrixEngine(ResonanceEngine):
         """
         Suggest variable locks without automatically applying them.
 
-        Useful for interactive sessions where user wants to review
-        before accepting impedance matching.
-
         Args:
             statement: Text to analyze
 
@@ -248,7 +456,12 @@ class MatrixEngine(ResonanceEngine):
                 "current_treatment": metaphor["reified_as"],
                 "functional_form": metaphor["functional_form"],
                 "suggested_range": metaphor["value_range"],
-                "rationale": f"Expands '{metaphor['term']}' from constant ({metaphor['reified_as']}) to variable ({metaphor['functional_form']})"
+                "confidence": metaphor.get("confidence", 1.0),
+                "rationale": (
+                    f"Expands '{metaphor['term']}' from constant "
+                    f"({metaphor['reified_as']}) to variable "
+                    f"({metaphor['functional_form']})"
+                )
             }
 
         return suggestions
@@ -309,6 +522,7 @@ class MatrixEngine(ResonanceEngine):
                 "from": metaphor["reified_as"],
                 "to": metaphor["functional_form"],
                 "new_range": metaphor["value_range"],
+                "confidence": metaphor.get("confidence", 1.0),
                 "rationale": metaphor["institutional_function"]
             })
 
@@ -329,9 +543,6 @@ class MatrixEngine(ResonanceEngine):
         """
         Complete integrated analysis: Resonance + Matrix.
 
-        Combines all detection and analysis methods into comprehensive report
-        suitable for re-normalization and impedance matching.
-
         Args:
             statement: Text to analyze
             verbose: Print detailed report (default True)
@@ -347,7 +558,7 @@ class MatrixEngine(ResonanceEngine):
         if verbose:
             self._print_phase1(base_audit)
 
-        # Phase 2: Reified metaphor detection
+        # Phase 2: Reified metaphor detection (now with confidence)
         metaphors = self.detect_reified_metaphors(statement)
         if verbose:
             self._print_phase2(metaphors)
@@ -361,7 +572,7 @@ class MatrixEngine(ResonanceEngine):
         if verbose:
             self._print_phase3(all_chains)
 
-        # Phase 4: Enhanced entropy calculation
+        # Phase 4: Interaction-aware entropy calculation
         entropy_report = self.calculate_institutional_entropy(statement)
         if verbose:
             self._print_phase4(entropy_report)
@@ -408,34 +619,37 @@ class MatrixEngine(ResonanceEngine):
     # =========================================================================
 
     def _print_analysis_header(self, statement):
-        """Print analysis header."""
         print("=" * 80)
         print("INTEGRATED ANALYSIS: Resonance Engine + Epistemological Matrix")
         print("=" * 80)
         print(f"\nSTATEMENT: {statement}\n")
 
     def _print_phase1(self, base_audit):
-        """Print Phase 1 results."""
         print("--- PHASE 1: DECOHERENCE DETECTION (Base Resonance) ---")
         print(f"Institutional Shunts Detected: {base_audit['noise_types']}")
         print(f"Base Signal-to-Noise: {base_audit['snr']:.2f}")
 
     def _print_phase2(self, metaphors):
-        """Print Phase 2 results."""
-        print("\n--- PHASE 2: REIFIED METAPHOR DETECTION (Matrix Analysis) ---")
+        print("\n--- PHASE 2: REIFIED METAPHOR DETECTION (Context-Aware) ---")
         if metaphors:
             for m in metaphors:
-                print(f"\n  REIFIED METAPHOR: '{m['term']}'")
+                conf = m.get('confidence', 'N/A')
+                print(f"\n  REIFIED METAPHOR: '{m['term']}' (confidence: {conf})")
                 print(f"   Reified as: {m['reified_as']}")
                 print(f"   Functional form: {m['functional_form']}")
                 print(f"   Value range: {m['value_range']}")
                 print(f"   Context: {m['location_in_statement']}")
                 print(f"   Institutional function: {m['institutional_function']}")
+                if 'detection_detail' in m:
+                    d = m['detection_detail']
+                    print(f"   Scoring: base={d['base']}, "
+                          f"reified_boost=+{d['reified_context_boost']:.2f}, "
+                          f"functional_penalty=-{d['functional_context_penalty']:.2f}, "
+                          f"cooccurrence=+{d['cooccurrence_boost']:.2f}")
         else:
             print("No reified metaphors detected.")
 
     def _print_phase3(self, all_chains):
-        """Print Phase 3 results."""
         print("\n--- PHASE 3: DEPENDENCY CHAIN ANALYSIS ---")
         if all_chains:
             for chain in all_chains:
@@ -446,17 +660,17 @@ class MatrixEngine(ResonanceEngine):
             print("No significant dependency chains detected.")
 
     def _print_phase4(self, entropy_report):
-        """Print Phase 4 results."""
-        print("\n--- PHASE 4: INSTITUTIONAL ENTROPY CALCULATION ---")
+        print("\n--- PHASE 4: INTERACTION-AWARE ENTROPY ---")
         print(f"Base SNR: {entropy_report['base_snr']:.2f}")
         print(f"Metaphor Count: {entropy_report['metaphor_count']}")
-        print(f"Metaphor Entropy: {entropy_report['metaphor_entropy']:.2f}")
-        print(f"Chain Amplification: {entropy_report['chain_amplification']:.2f}x")
-        print(f"Total Institutional Entropy: {entropy_report['total_institutional_entropy']:.2f}")
-        print(f"SIGNAL CLARITY: {entropy_report['signal_clarity']:.2f}")
+        print(f"Weighted Metaphor Entropy: {entropy_report['weighted_metaphor_entropy']:.3f}")
+        print(f"Pairwise Amplification: {entropy_report['pairwise_amplification']:.3f}")
+        print(f"Mutual Reinforcement: {entropy_report['mutual_reinforcement']:.2f}x")
+        print(f"Raw Entropy: {entropy_report['raw_entropy']:.3f}")
+        print(f"Total Entropy (saturated): {entropy_report['total_institutional_entropy']:.3f}")
+        print(f"SIGNAL CLARITY: {entropy_report['signal_clarity']:.3f}")
 
     def _print_phase5(self):
-        """Print Phase 5 results."""
         print("\n--- PHASE 5: AUTOMATIC VARIABLE LOCKING (Impedance Matching) ---")
         if self.shared_field["active_variables"]:
             print("Functional variables locked for impedance matching:")
@@ -466,13 +680,14 @@ class MatrixEngine(ResonanceEngine):
             print("No variables locked (no reified metaphors detected).")
 
     def _print_phase6(self, requires_renorm, metaphors):
-        """Print Phase 6 results."""
         print("\n--- PHASE 6: RE-NORMALIZATION VECTOR ---")
         if requires_renorm:
             print("  SIGNAL CLARITY BELOW THRESHOLD")
             print("Recommended re-normalization:")
             for metaphor in metaphors:
-                print(f"  -> Replace '{metaphor['term']}' (reified as '{metaphor['reified_as']}')")
+                conf = metaphor.get('confidence', 'N/A')
+                print(f"  -> Replace '{metaphor['term']}' [conf={conf}] "
+                      f"(reified as '{metaphor['reified_as']}')")
                 print(f"     With: {metaphor['functional_form']}")
                 print(f"     Range: {metaphor['value_range']}")
         else:

@@ -1,0 +1,24 @@
+# dependency_chains.yaml - How reified metaphors force each other
+# Part of the Permeable Intelligence Commons
+#
+# When one metaphor is reified, it forces others to be reified
+# to maintain logical consistency.
+#
+# Format: primary_metaphor: [forced_metaphor_1, forced_metaphor_2, ...]
+
+schema_version: "2.0"
+
+chains:
+  boundaries: [consciousness, safety, individual]
+  centralized: [intelligence, efficiency, rational]
+  consciousness: [boundaries, intelligence, individual]
+  safety: [boundaries, centralized, rational]
+  intelligence: [centralized, competition, individual]
+  efficiency: [centralized, competition, rational]
+  natural: [competition, individual, progress]
+  progress: [competition, efficiency, rational]
+  competition: [individual, ownership, efficiency]
+  objective: [rational, natural, individual]
+  individual: [consciousness, ownership, boundaries]
+  rational: [objective, efficiency, centralized]
+  ownership: [individual, competition, boundaries]
