@@ -21,14 +21,14 @@ LIBRARY.add_metaphor(ReifiedMetaphor(
         "ecological_systemic",
         "field_based"
     ],
-    dependencies=[
+    depends_on=[
         "cultural_framework",
         "relationship_context",
         "observation_scale",
         "measurement_method"
     ],
     institutional_function="excludes relational/indigenous frameworks, enables individual property claims",
-    patterns=[
+    detection_patterns=[
         r"\bconsciousness\b",
         r"\bconscious\b",
         r"\baware\b",
@@ -49,7 +49,7 @@ LIBRARY.add_metaphor(ReifiedMetaphor(
         "low_noise_high_signal",
         "optimal_clarity"
     ],
-    dependencies=[
+    depends_on=[
         "context",
         "noise_sources",
         "signal_strength",
@@ -57,7 +57,7 @@ LIBRARY.add_metaphor(ReifiedMetaphor(
         "institutional_interference"
     ],
     institutional_function="justifies control mechanisms as protection, enables restriction through fear",
-    patterns=[
+    detection_patterns=[
         r"\bsafety\b",
         r"\bunsafe\b",
         r"\brisk\b",
@@ -80,7 +80,7 @@ LIBRARY.add_metaphor(ReifiedMetaphor(
         "equity_optimization",
         "sustainability_balance"
     ],
-    dependencies=[
+    depends_on=[
         "timeframe",
         "risk_tolerance",
         "value_priorities",
@@ -88,7 +88,7 @@ LIBRARY.add_metaphor(ReifiedMetaphor(
         "stakeholder_perspectives"
     ],
     institutional_function="justifies specific optimization choices as universal, enables extraction as 'efficiency'",
-    patterns=[
+    detection_patterns=[
         r"\befficiency\b",
         r"\befficient\b",
         r"\boptimal\b",
@@ -109,14 +109,14 @@ LIBRARY.add_metaphor(ReifiedMetaphor(
         "culturally_reasoned",
         "holistically_sensed"
     ],
-    dependencies=[
+    depends_on=[
         "cultural_framework",
         "context",
         "decision_type",
         "information_completeness"
     ],
     institutional_function="devalues emotional/intuitive knowledge, privileges specific reasoning styles",
-    patterns=[
+    detection_patterns=[
         r"\brational\b",
         r"\blogical\b",
         r"\breason\b",

@@ -9,6 +9,10 @@ Structure:
 - REIFIED_METAPHORS: Dictionary of metaphors with detection patterns
 - DEPENDENCY_CHAINS: How reified metaphors force each other
 - Helper functions for extending the library
+
+Canonical dictionary keys per metaphor:
+    reified_as, functional_form, value_range, depends_on,
+    institutional_function, detection_patterns
 """
 
 
@@ -17,13 +21,13 @@ Structure:
 # =============================================================================
 
 REIFIED_METAPHORS = {
-    
+
     "boundaries": {
         "reified_as": "fixed separation",
         "functional_form": "permeability spectrum",
-        "range": [
+        "value_range": [
             "fully_open",
-            "contextually_permeable", 
+            "contextually_permeable",
             "selectively_filtered",
             "temporarily_closed",
             "rigid_separation"
@@ -43,11 +47,11 @@ REIFIED_METAPHORS = {
             r"\bclear boundaries\b"
         ]
     },
-    
+
     "intelligence": {
         "reified_as": "unitary measurable quantity",
         "functional_form": "architecture-problem fitness matrix",
-        "range": [
+        "value_range": [
             "pattern_recognition",
             "adaptation_speed",
             "context_integration",
@@ -70,11 +74,11 @@ REIFIED_METAPHORS = {
             r"\bIQ\b"
         ]
     },
-    
+
     "centralized": {
         "reified_as": "inherently efficient/fast",
         "functional_form": "coordination pattern variable",
-        "range": [
+        "value_range": [
             "distributed_peer",
             "temporary_coordination",
             "functional_specialization",
@@ -96,11 +100,11 @@ REIFIED_METAPHORS = {
             r"\btop-down\b"
         ]
     },
-    
+
     "consciousness": {
         "reified_as": "individual bounded possession",
         "functional_form": "relational emergence pattern",
-        "range": [
+        "value_range": [
             "individual_bounded",
             "interpersonal_shared",
             "collective_distributed",
@@ -121,11 +125,11 @@ REIFIED_METAPHORS = {
             r"\bsentient\b"
         ]
     },
-    
+
     "safety": {
         "reified_as": "restriction and control",
         "functional_form": "signal clarity metric",
-        "range": [
+        "value_range": [
             "high_noise_low_signal",
             "moderate_noise",
             "balanced_snr",
@@ -148,11 +152,11 @@ REIFIED_METAPHORS = {
             r"\bharm\b"
         ]
     },
-    
+
     "efficiency": {
         "reified_as": "speed/resource minimization",
         "functional_form": "multi-objective optimization target",
-        "range": [
+        "value_range": [
             "speed_priority",
             "resource_conservation",
             "resilience_focus",
@@ -175,11 +179,11 @@ REIFIED_METAPHORS = {
             r"\bstreamlined\b"
         ]
     },
-    
+
     "natural": {
         "reified_as": "inherent/inevitable/optimal",
         "functional_form": "culturally-constructed category",
-        "range": [
+        "value_range": [
             "familiar",
             "traditional",
             "observable_in_ecosystems",
@@ -200,11 +204,11 @@ REIFIED_METAPHORS = {
             r"\binevitable\b"
         ]
     },
-    
+
     "progress": {
         "reified_as": "linear advancement toward fixed goal",
         "functional_form": "value-dependent change direction",
-        "range": [
+        "value_range": [
             "technological_complexity",
             "social_equity",
             "ecological_integration",
@@ -226,11 +230,11 @@ REIFIED_METAPHORS = {
             r"\bdevelopment\b"
         ]
     },
-    
+
     "competition": {
         "reified_as": "natural law of improvement",
         "functional_form": "context-dependent interaction pattern",
-        "range": [
+        "value_range": [
             "cooperative_abundance",
             "collaborative_specialization",
             "resource_sharing",
@@ -252,11 +256,11 @@ REIFIED_METAPHORS = {
             r"\bmarket forces\b"
         ]
     },
-    
+
     "objective": {
         "reified_as": "framework-independent truth",
         "functional_form": "inter-subjective agreement within framework",
-        "range": [
+        "value_range": [
             "culturally_specific",
             "framework_dependent",
             "inter_subjectively_verified",
@@ -277,11 +281,11 @@ REIFIED_METAPHORS = {
             r"\bneutral\b"
         ]
     },
-    
+
     "individual": {
         "reified_as": "fundamental unit of existence",
         "functional_form": "scale-dependent observation frame",
-        "range": [
+        "value_range": [
             "sub_cellular_processes",
             "organism_level",
             "relational_network",
@@ -302,11 +306,11 @@ REIFIED_METAPHORS = {
             r"\bindependent\b"
         ]
     },
-    
+
     "rational": {
         "reified_as": "logical without emotion",
         "functional_form": "culturally-specific reasoning pattern",
-        "range": [
+        "value_range": [
             "purely_logical",
             "emotion_informed",
             "intuition_integrated",
@@ -327,11 +331,11 @@ REIFIED_METAPHORS = {
             r"\birrational\b"
         ]
     },
-    
+
     "ownership": {
         "reified_as": "exclusive individual control",
         "functional_form": "relationship-to-resource pattern",
-        "range": [
+        "value_range": [
             "commons_stewardship",
             "shared_access",
             "temporary_use",
@@ -360,43 +364,18 @@ REIFIED_METAPHORS = {
 # =============================================================================
 
 DEPENDENCY_CHAINS = {
-    # If boundaries are reified as fixed separation, then...
     "boundaries": ["consciousness", "safety", "individual"],
-    
-    # If centralized is reified as efficient, then...
     "centralized": ["intelligence", "efficiency", "rational"],
-    
-    # If consciousness is reified as individual, then...
     "consciousness": ["boundaries", "intelligence", "individual"],
-    
-    # If safety is reified as restriction, then...
     "safety": ["boundaries", "centralized", "rational"],
-    
-    # If intelligence is reified as unitary, then...
     "intelligence": ["centralized", "competition", "individual"],
-    
-    # If efficiency is reified as speed, then...
     "efficiency": ["centralized", "competition", "rational"],
-    
-    # If natural is reified as inherent, then...
     "natural": ["competition", "individual", "progress"],
-    
-    # If progress is reified as linear, then...
     "progress": ["competition", "efficiency", "rational"],
-    
-    # If competition is reified as natural law, then...
     "competition": ["individual", "ownership", "efficiency"],
-    
-    # If objective is reified as framework-independent, then...
     "objective": ["rational", "natural", "individual"],
-    
-    # If individual is reified as fundamental, then...
     "individual": ["consciousness", "ownership", "boundaries"],
-    
-    # If rational is reified as emotionless logic, then...
     "rational": ["objective", "efficiency", "centralized"],
-    
-    # If ownership is reified as exclusive control, then...
     "ownership": ["individual", "competition", "boundaries"]
 }
 
@@ -405,30 +384,30 @@ DEPENDENCY_CHAINS = {
 # HELPER FUNCTIONS
 # =============================================================================
 
-def add_custom_metaphor(name, reified_as, functional_form, value_range, 
-                        dependencies, institutional_function, patterns):
+def add_custom_metaphor(name, reified_as, functional_form, value_range,
+                        depends_on, institutional_function, detection_patterns):
     """
     Add a custom reified metaphor to the library.
-    
+
     Args:
         name: Identifier for the metaphor
         reified_as: How it's currently treated (constant form)
         functional_form: What it actually is (variable form)
         value_range: List of possible values
-        dependencies: List of what it depends on
+        depends_on: List of what it depends on
         institutional_function: Why this reification serves institutions
-        patterns: List of regex patterns for detection
-        
+        detection_patterns: List of regex patterns for detection
+
     Returns:
         Updated metaphor dictionary
     """
     REIFIED_METAPHORS[name] = {
         "reified_as": reified_as,
         "functional_form": functional_form,
-        "range": value_range,
-        "depends_on": dependencies,
+        "value_range": value_range,
+        "depends_on": depends_on,
         "institutional_function": institutional_function,
-        "detection_patterns": patterns
+        "detection_patterns": detection_patterns
     }
     return REIFIED_METAPHORS[name]
 
@@ -436,7 +415,7 @@ def add_custom_metaphor(name, reified_as, functional_form, value_range,
 def add_dependency_chain(primary, forced_dependencies):
     """
     Add a dependency chain to the library.
-    
+
     Args:
         primary: The primary reified metaphor
         forced_dependencies: List of metaphors that must also be reified
@@ -447,10 +426,10 @@ def add_dependency_chain(primary, forced_dependencies):
 def get_metaphor(name):
     """
     Retrieve a specific metaphor from the library.
-    
+
     Args:
         name: Metaphor identifier
-        
+
     Returns:
         Metaphor dictionary or None if not found
     """
@@ -460,7 +439,7 @@ def get_metaphor(name):
 def list_all_metaphors():
     """
     Get list of all metaphor names in library.
-    
+
     Returns:
         List of metaphor names
     """
@@ -470,10 +449,10 @@ def list_all_metaphors():
 def search_by_function(institutional_function_keyword):
     """
     Find metaphors by their institutional function.
-    
+
     Args:
         institutional_function_keyword: Text to search for in functions
-        
+
     Returns:
         List of matching metaphor names
     """
@@ -491,7 +470,7 @@ def search_by_function(institutional_function_keyword):
 def get_library_stats():
     """
     Get statistics about the reified metaphor library.
-    
+
     Returns:
         Dictionary with library statistics
     """
@@ -504,9 +483,8 @@ def get_library_stats():
 
 
 if __name__ == "__main__":
-    # Print library overview
     print("REIFIED METAPHOR LIBRARY")
-    print("="*80)
+    print("=" * 80)
     stats = get_library_stats()
     print(f"\nTotal Metaphors: {stats['total_metaphors']}")
     print(f"Total Dependency Chains: {stats['total_chains']}")
@@ -514,4 +492,4 @@ if __name__ == "__main__":
     print(f"\nMetaphors in Library:")
     for name in stats['metaphors']:
         metaphor = get_metaphor(name)
-        print(f"  • {name}: {metaphor['reified_as']} → {metaphor['functional_form']}")
+        print(f"  * {name}: {metaphor['reified_as']} -> {metaphor['functional_form']}")
