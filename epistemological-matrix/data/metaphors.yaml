@@ -447,3 +447,50 @@ metaphors:
       - "\\bown\\s+(risk|pace)\\b"
       - "\\bproperty\\s+(file|name|value|key|list)\\b"
       - "\\bon\\s+its\\s+own\\b"
+
+  fertilizer_shortage:
+    reified_as: "supply chain crisis requiring synthetic inputs"
+    functional_form: "nutrient cycle disruption with recoverable local sources"
+    value_range:
+      - synthetic_dependent
+      - transitional_hybrid
+      - biological_restoration
+      - closed_loop_local
+      - fully_regenerative
+    depends_on:
+      - soil_biology_state
+      - sewage_nutrient_recovery
+      - local_mineral_availability
+      - geopolitical_supply_concentration
+      - agricultural_practice_type
+      - economic_incentive_structure
+    institutional_function: "naturalizes dependency on consolidated synthetic supply chains, prevents recognition of recoverable local nutrient sources (sewage phosphorus, atmospheric nitrogen, mineral potassium), maintains corporate control over food production"
+    detection_patterns:
+      - "\\bfertilizer\\s+shortage\\b"
+      - "\\bfertilizer\\s+crisis\\b"
+      - "\\bfertilizer\\s+supply\\b"
+      - "\\bfertilizer\\s+scarcity\\b"
+      - "\\bnutrient\\s+shortage\\b"
+      - "\\bphosphorus\\s+shortage\\b"
+      - "\\bnitrogen\\s+shortage\\b"
+      - "\\bfood\\s+crisis.*fertilizer\\b"
+      - "\\bfertilizer.*food\\s+crisis\\b"
+    reified_contexts:
+      - "\\bfertilizer\\s+shortage\\s+(is|threatens|causes|will)\\b"
+      - "\\bwithout\\s+fertilizer.*starve\\b"
+      - "\\bfertilizer\\s+supply\\s+(chain|disruption|crisis)\\b"
+      - "\\bneed\\s+more\\s+(synthetic\\s+)?fertilizer\\b"
+      - "\\bfertilizer\\s+(prices?|costs?)\\s+(rise|soar|increase|spike)\\b"
+      - "\\bdependent\\s+on\\s+(synthetic\\s+)?fertilizer\\b"
+      - "\\bno\\s+(alternative|substitute).*fertilizer\\b"
+      - "\\bfertilizer\\s+(is|remains)\\s+essential\\b"
+    functional_contexts:
+      - "\\bnitrogen\\s+fixation\\b"
+      - "\\bphosphorus\\s+recovery\\b"
+      - "\\bnutrient\\s+cycl(e|ing)\\b"
+      - "\\bsoil\\s+biology\\b"
+      - "\\bcompost(ing)?\\b"
+      - "\\bsewage\\s+(nutrient|phosphorus)\\s+recovery\\b"
+      - "\\bbiological\\s+(nitrogen|fixation)\\b"
+      - "\\bregenerat(ive|ion)\\s+(agriculture|farming)\\b"
+      - "\\brock\\s+(dust|mineral|phosphate)\\s+(amendment|application)\\b"

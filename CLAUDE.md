@@ -24,7 +24,9 @@
     ├── matrix_engine.py               # MatrixEngine (extends ResonanceEngine)
     ├── reified_metaphor_library.py    # Library interface (loads from YAML)
     ├── integrated_example.py          # Working demonstration
-    ├── test_matrix_engine.py          # Test suite (17 tests)
+    ├── nutrient_cycling.py             # Nutrient cycling physics equations (N, P, K, soil, food security)
+    ├── test_matrix_engine.py          # Test suite (20 tests)
+    ├── test_nutrient_cycling.py       # Nutrient cycling test suite (12 tests)
     └── metaphor/                      # DEPRECATED - kept for backward compat
         ├── __init__.py                # Deprecation warning
         └── ...                        # Legacy modular catalog files
@@ -43,7 +45,16 @@ cd epistemological-matrix
 PYTHONPATH="..:." python test_matrix_engine.py
 ```
 
-17 tests covering: metaphor detection, dependency chains, entropy calculation, variable locking, re-normalization, full integration, quick analysis, library extensibility, library search, standardized keys, reified/functional context scoring, co-occurrence boosting, confidence ranges, interaction-aware entropy fields, logistic saturation bounds, and pairwise amplification.
+20 tests covering: metaphor detection, dependency chains, entropy calculation, variable locking, re-normalization, full integration, quick analysis, library extensibility, library search, standardized keys, reified/functional context scoring, co-occurrence boosting, confidence ranges, interaction-aware entropy fields, logistic saturation bounds, pairwise amplification, fertilizer shortage detection, fertilizer dependency chain, and fertilizer co-occurrence.
+
+### Nutrient Cycling Tests
+
+```bash
+cd epistemological-matrix
+python test_nutrient_cycling.py
+```
+
+12 tests covering: nitrogen fixation, nitrogen from sewage, phosphorus from sewage, phosphorus from dump, potassium cycling, soil biology assessment, local food security calculator, narrative vs physics detection, shortage claim verification, constant overrides, zero-input handling, and recovery method differentiation.
 
 ## Key Concepts
 
