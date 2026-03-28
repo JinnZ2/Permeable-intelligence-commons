@@ -11,23 +11,30 @@ Part of Epistemological Matrix Framework
 from metaphor_core import LIBRARY
 
 
-# Add all dependency chains
-LIBRARY.add_chain("boundaries", ["consciousness", "safety", "individual"])
-LIBRARY.add_chain("centralized", ["intelligence", "efficiency", "rational"])
-LIBRARY.add_chain("consciousness", ["boundaries", "intelligence", "individual"])
-LIBRARY.add_chain("safety", ["boundaries", "centralized", "rational"])
-LIBRARY.add_chain("intelligence", ["centralized", "competition", "individual"])
-LIBRARY.add_chain("efficiency", ["centralized", "competition", "rational"])
-LIBRARY.add_chain("natural", ["competition", "individual", "progress"])
-LIBRARY.add_chain("progress", ["competition", "efficiency", "rational"])
-LIBRARY.add_chain("competition", ["individual", "ownership", "efficiency"])
-LIBRARY.add_chain("objective", ["rational", "natural", "individual"])
-LIBRARY.add_chain("individual", ["consciousness", "ownership", "boundaries"])
-LIBRARY.add_chain("rational", ["objective", "efficiency", "centralized"])
-LIBRARY.add_chain("ownership", ["individual", "competition", "boundaries"])
+# All dependency chain definitions
+_CHAINS = {
+    "boundaries": ["consciousness", "safety", "individual"],
+    "centralized": ["intelligence", "efficiency", "rational"],
+    "consciousness": ["boundaries", "intelligence", "individual"],
+    "safety": ["boundaries", "centralized", "rational"],
+    "intelligence": ["centralized", "competition", "individual"],
+    "efficiency": ["centralized", "competition", "rational"],
+    "natural": ["competition", "individual", "progress"],
+    "progress": ["competition", "efficiency", "rational"],
+    "competition": ["individual", "ownership", "efficiency"],
+    "objective": ["rational", "natural", "individual"],
+    "individual": ["consciousness", "ownership", "boundaries"],
+    "rational": ["objective", "efficiency", "centralized"],
+    "ownership": ["individual", "competition", "boundaries"],
+}
 
 
-# Export function for easy import
+def load_chains():
+    """Load all dependency chains into the global LIBRARY."""
+    for primary, forces in _CHAINS.items():
+        LIBRARY.add_chain(primary, forces)
+
+
 def get_dependency_chains():
     """Get all dependency chains."""
     return LIBRARY.chains
@@ -36,3 +43,7 @@ def get_dependency_chains():
 def get_chain(metaphor_name):
     """Get dependency chain for specific metaphor."""
     return LIBRARY.chains.get(metaphor_name, [])
+
+
+# Load chains when module is imported (required for catalog assembly)
+load_chains()

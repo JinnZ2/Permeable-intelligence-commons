@@ -1,7 +1,7 @@
 # metaphor_catalog_1.py
 """
 Reified Metaphor Catalog - Part 1
-Core institutional metaphors: boundaries, intelligence, centralized, hierarchy
+Core institutional metaphors: boundaries, intelligence, centralized
 
 Part of Epistemological Matrix Framework
 """
@@ -21,7 +21,7 @@ LIBRARY.add_metaphor(ReifiedMetaphor(
         "temporarily_closed",
         "rigid_separation"
     ],
-    dependencies=[
+    depends_on=[
         "context",
         "relationship_type",
         "cultural_framework",
@@ -29,7 +29,7 @@ LIBRARY.add_metaphor(ReifiedMetaphor(
         "trust_level"
     ],
     institutional_function="justifies rigid separation as natural/necessary, enables control through isolation",
-    patterns=[
+    detection_patterns=[
         r"\bboundaries\b",
         r"\bmaintain boundaries\b",
         r"\bprotective barriers\b",
@@ -50,7 +50,7 @@ LIBRARY.add_metaphor(ReifiedMetaphor(
         "distributed_coordination",
         "specialized_optimization"
     ],
-    dependencies=[
+    depends_on=[
         "problem_structure",
         "information_availability",
         "architectural_type",
@@ -58,7 +58,7 @@ LIBRARY.add_metaphor(ReifiedMetaphor(
         "cultural_framework"
     ],
     institutional_function="enables ranking/hierarchy claims, justifies concentration of power/resources",
-    patterns=[
+    detection_patterns=[
         r"\bintelligence\b",
         r"\bmore intelligent\b",
         r"\bAGI\b",
@@ -80,7 +80,7 @@ LIBRARY.add_metaphor(ReifiedMetaphor(
         "hierarchical_delegation",
         "rigid_command_chain"
     ],
-    dependencies=[
+    depends_on=[
         "information_distribution",
         "problem_complexity",
         "failure_tolerance",
@@ -88,7 +88,7 @@ LIBRARY.add_metaphor(ReifiedMetaphor(
         "coordination_cost"
     ],
     institutional_function="naturalizes hierarchical control, justifies concentration of decision-making power",
-    patterns=[
+    detection_patterns=[
         r"\bcentralized\b",
         r"\bhierarchy\b",
         r"\bchain of command\b",

@@ -9,19 +9,19 @@ from metaphor_core import LIBRARY, ReifiedMetaphor
 
 
 def add_custom_metaphor(name, reified_as, functional_form, value_range,
-                        dependencies, institutional_function, patterns):
+                        depends_on, institutional_function, detection_patterns):
     """
     Add a custom reified metaphor to the library.
-    
+
     Args:
         name: Identifier for the metaphor
         reified_as: How it's currently treated (constant form)
         functional_form: What it actually is (variable form)
         value_range: List of possible values
-        dependencies: List of what it depends on
+        depends_on: List of what it depends on
         institutional_function: Why this reification serves institutions
-        patterns: List of regex patterns for detection
-        
+        detection_patterns: List of regex patterns for detection
+
     Returns:
         The metaphor dictionary that was added
     """
@@ -30,9 +30,9 @@ def add_custom_metaphor(name, reified_as, functional_form, value_range,
         reified_as=reified_as,
         functional_form=functional_form,
         value_range=value_range,
-        dependencies=dependencies,
+        depends_on=depends_on,
         institutional_function=institutional_function,
-        patterns=patterns
+        detection_patterns=detection_patterns
     )
     LIBRARY.add_metaphor(metaphor)
     return metaphor.to_dict()
@@ -51,10 +51,10 @@ def list_all_metaphors():
 def search_by_function(institutional_function_keyword):
     """
     Find metaphors by their institutional function.
-    
+
     Args:
         institutional_function_keyword: Text to search for in functions
-        
+
     Returns:
         List of matching metaphor names
     """
@@ -77,7 +77,6 @@ def get_library_stats():
     }
 
 
-# Export library in format expected by MatrixEngine
 def export_for_matrix_engine():
     """Export complete library for use in MatrixEngine."""
     return {
