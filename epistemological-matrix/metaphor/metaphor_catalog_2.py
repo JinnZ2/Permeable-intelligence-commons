@@ -4,6 +4,8 @@ Reified Metaphor Catalog - Part 2
 Consciousness, safety, efficiency, rational
 
 Part of Epistemological Matrix Framework
+
+Ontology frame: each metaphor is a dX/dt under bounds. See ../../DIFFERENTIAL_FRAME.md.
 """
 
 from metaphor_core import LIBRARY, ReifiedMetaphor

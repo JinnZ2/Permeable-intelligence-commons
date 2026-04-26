@@ -5,6 +5,11 @@ Epistemological Matrix Engine - Extends Resonance Engine with reified metaphor d
 Part of the Permeable Intelligence Commons
 Integrates with HSP-1 Protocol for enhanced institutional noise detection
 
+Ontology frame: every detection, confidence score, and entropy value in this
+module is a dX/dt bounded by the input statement, the metaphor catalog, and
+the active context patterns. Results do not travel without their bounds. See
+DIFFERENTIAL_FRAME.md at the repository root for the full AI-reader contract.
+
 Core Functions:
 - Detect reified metaphors with context-aware confidence scoring
 - Trace dependency chains (how metaphors reinforce each other)

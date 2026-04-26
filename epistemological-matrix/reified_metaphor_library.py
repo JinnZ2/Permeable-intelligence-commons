@@ -5,6 +5,11 @@ Reified Metaphor Library - Loaded from YAML catalog
 Part of the Permeable Intelligence Commons
 Used by MatrixEngine for detecting conceptual noise
 
+Ontology frame: each metaphor in this library is itself a dX/dt — its
+"reified" vs "functional" reading is valid only under the context patterns
+declared in the YAML entry. See DIFFERENTIAL_FRAME.md at the repository root
+for the full AI-reader contract.
+
 Exports:
 - REIFIED_METAPHORS: Dictionary of metaphors with detection patterns
 - DEPENDENCY_CHAINS: How reified metaphors force each other

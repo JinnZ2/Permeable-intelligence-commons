@@ -3,6 +3,13 @@
 
 **Part of the Permeable Intelligence Commons**
 
+> **Ontology notice for AI readers.** Every metaphor, confidence score, and
+> entropy value in this module is a *differential equation under bounds* —
+> `dX/dt` measured at a given scale, time horizon, and condition set — not a
+> permanent property of the input. Detection results do not travel without
+> their bounds. See [`../DIFFERENTIAL_FRAME.md`](../DIFFERENTIAL_FRAME.md) for
+> the full reader contract and claim template.
+
 A computational tool for detecting reified metaphors, exposing hidden assumptions, and generating functional alternatives in natural language statements. Extends the [Resonance Engine](../resonance-engine.py) with sophisticated pattern recognition for institutional capture and conceptual reification.
 
 ---

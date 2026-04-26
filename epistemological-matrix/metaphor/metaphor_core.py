@@ -5,6 +5,9 @@ Defines base classes and data structures.
 
 Part of Epistemological Matrix Framework
 Permeable Intelligence Commons
+
+Ontology frame: data structures here describe dX/dt under bounds, not
+permanent properties. See ../../DIFFERENTIAL_FRAME.md.
 """
 
 

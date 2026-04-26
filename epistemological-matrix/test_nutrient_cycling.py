@@ -2,6 +2,11 @@
 """
 Test Suite for Nutrient Cycling Physics Equations
 
+Ontology frame: tested equation outputs are dX/dt bounded by the fixed test
+inputs. Passing tests verify the math closes, not that any defaulted constant
+holds outside its source-cited envelope. See DIFFERENTIAL_FRAME.md at the
+repository root for the full AI-reader contract.
+
 Tests all equations are:
 - Traceable (show the work)
 - Localizable (work for any geography)

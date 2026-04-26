@@ -3,6 +3,11 @@
 """
 CLI interface for the Epistemological Matrix Engine.
 
+Ontology frame: CLI output reports dX/dt under the bounds of the supplied
+statement, active catalog, and context patterns — not permanent properties
+of the input text. See DIFFERENTIAL_FRAME.md at the repository root for the
+full AI-reader contract.
+
 Usage:
     python -m epistemological_matrix "statement to analyze"
     python -m epistemological_matrix --self-analysis

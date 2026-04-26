@@ -16,6 +16,13 @@ When someone says "fertilizer shortage," these equations let you:
 All constants are sourced from peer-reviewed literature with citations.
 Users can override any constant with local measurements.
 
+Ontology frame: every yield, recovery rate, and "shortage" verdict in this
+module is a dX/dt under explicit bounds (geography, lithology, season,
+biota, technology). The defaults are envelope estimates — local measurement
+overrides them. Stripping a result from its bounds is a translation error.
+See DIFFERENTIAL_FRAME.md at the repository root for the full AI-reader
+contract and claim template.
+
 Part of the Permeable Intelligence Commons
 License: MIT (c) 2025 JinnZ2
 """

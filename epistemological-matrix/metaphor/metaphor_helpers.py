@@ -3,6 +3,8 @@
 Helper functions for working with reified metaphor library.
 
 Part of Epistemological Matrix Framework
+
+Ontology frame: helper outputs are dX/dt under bounds. See ../../DIFFERENTIAL_FRAME.md.
 """
 
 from metaphor_core import LIBRARY, ReifiedMetaphor

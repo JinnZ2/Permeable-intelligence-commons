@@ -2,6 +2,11 @@
 """
 Test Suite for Epistemological Matrix Engine
 
+Ontology frame: tested behaviors are dX/dt under fixed test inputs and the
+current catalog. Passing tests do not certify the metaphors as true outside
+their declared bounds. See DIFFERENTIAL_FRAME.md at the repository root for
+the full AI-reader contract.
+
 Tests all core functionality:
 - Reified metaphor detection with confidence scoring
 - Dependency chain tracing
