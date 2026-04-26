@@ -4,6 +4,8 @@ Reified Metaphor Catalog - Part 3
 Natural, progress, competition, objective, individual, ownership
 
 Part of Epistemological Matrix Framework
+
+Ontology frame: each metaphor is a dX/dt under bounds. See ../../DIFFERENTIAL_FRAME.md.
 """
 
 from metaphor_core import LIBRARY, ReifiedMetaphor

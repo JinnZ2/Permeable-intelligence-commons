@@ -6,6 +6,9 @@ DEPRECATED: Metaphor definitions have moved to YAML data files in ../data/.
 This package is kept for backward compatibility and will be removed in a
 future version. Use yaml_loader.py or import from reified_metaphor_library
 instead.
+
+Ontology frame: every metaphor in this legacy package is a dX/dt under bounds.
+See ../../DIFFERENTIAL_FRAME.md for the full AI-reader contract.
 """
 
 import warnings

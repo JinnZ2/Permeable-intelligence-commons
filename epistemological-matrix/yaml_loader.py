@@ -6,6 +6,11 @@ Reads metaphors.yaml and dependency_chains.yaml and produces the same
 dict structures (REIFIED_METAPHORS, DEPENDENCY_CHAINS) that MatrixEngine expects.
 
 Part of the Permeable Intelligence Commons
+
+Ontology frame: every metaphor entry loaded here is a dX/dt under bounds —
+its detection patterns and confidence weights are valid only within the
+context fields it declares. See DIFFERENTIAL_FRAME.md at the repository root
+for the full AI-reader contract.
 """
 
 import os

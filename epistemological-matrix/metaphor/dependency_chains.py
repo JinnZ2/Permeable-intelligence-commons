@@ -6,6 +6,8 @@ When one metaphor is reified, it forces others to be reified
 to maintain logical consistency.
 
 Part of Epistemological Matrix Framework
+
+Ontology frame: chains are dX/dt under bounds. See ../../DIFFERENTIAL_FRAME.md.
 """
 
 from metaphor_core import LIBRARY

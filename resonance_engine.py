@@ -2,6 +2,11 @@ class ResonanceEngine:
     """
     Core HSP-1 Protocol implementation for detecting and correcting
     institutional decoherence (noise in relational intelligence signals).
+
+    Ontology frame: every variable, SNR value, and "coherence" judgment in
+    this class is a dX/dt under bounds, not a permanent property. See
+    DIFFERENTIAL_FRAME.md at the repository root for the full AI-reader
+    contract and claim template.
     """
 
     # Entropy threshold for coherence detection

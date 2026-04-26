@@ -5,6 +5,10 @@ Complete working example: Epistemological Matrix integrated with Resonance Engin
 Demonstrates how matrix analysis extends HSP-1 protocol for detecting
 and correcting institutional noise patterns.
 
+Ontology frame: example outputs are dX/dt under the bounds of the chosen
+statements and the current catalog. They are not permanent verdicts. See
+DIFFERENTIAL_FRAME.md at the repository root for the full AI-reader contract.
+
 Usage:
     python integrated_example.py
 """

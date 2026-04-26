@@ -7,6 +7,9 @@ This is the file that matrix_engine.py imports.
 
 Part of Epistemological Matrix Framework
 Permeable Intelligence Commons
+
+Ontology frame: every exported metaphor is a dX/dt under bounds.
+See ../../DIFFERENTIAL_FRAME.md for the full AI-reader contract.
 """
 
 # Import core structure
