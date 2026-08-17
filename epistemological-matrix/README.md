@@ -10,7 +10,14 @@
 > their bounds. See [`../DIFFERENTIAL_FRAME.md`](../DIFFERENTIAL_FRAME.md) for
 > the full reader contract and claim template.
 
-A computational tool for detecting reified metaphors, exposing hidden assumptions, and generating functional alternatives in natural language statements. Extends the [Resonance Engine](../resonance-engine.py) with sophisticated pattern recognition for institutional capture and conceptual reification.
+> **Before changing a model or a constant,** read [`../METHOD.md`](../METHOD.md).
+> It records what has already been run and falsified in this module — the linear
+> entropy clamp, single-pass regex detection, uniform metaphor weighting,
+> independent-noise amplification — and which constants are shape choices rather
+> than fitted values. Superseded code lives in [`../legacy/`](../legacy/) rather
+> than being deleted; precedence still carries.
+
+A computational tool for detecting reified metaphors, exposing hidden assumptions, and generating functional alternatives in natural language statements. Extends the [Resonance Engine](../resonance_engine.py) with sophisticated pattern recognition for institutional capture and conceptual reification.
 
 ---
 

@@ -12,24 +12,29 @@
 /
 ├── resonance_engine.py                # Core HSP-1 protocol (ResonanceEngine class)
 ├── requirements.txt                   # Python dependencies (pyyaml)
+├── README.md                          # Project overview
+├── METHOD.md                          # Falsification loop + run ledger + open unknowns
+├── DIFFERENTIAL_FRAME.md              # AI-reader ontology contract (dX/dt under bounds)
 ├── Executive-summary.md               # Full framework manifesto and philosophical foundations
 ├── In-work.md                         # Current development focus and design principles
-├── README.md                          # Project overview
 ├── LICENSE                            # MIT license
-└── epistemological-matrix/
-    ├── data/
-    │   ├── metaphors.yaml             # Canonical metaphor catalog (13 metaphors, YAML)
-    │   └── dependency_chains.yaml     # Dependency chain definitions (YAML)
-    ├── yaml_loader.py                 # YAML loading and validation
-    ├── matrix_engine.py               # MatrixEngine (extends ResonanceEngine)
-    ├── reified_metaphor_library.py    # Library interface (loads from YAML)
-    ├── integrated_example.py          # Working demonstration
-    ├── nutrient_cycling.py             # Nutrient cycling physics equations (N, P, K, soil, food security)
-    ├── test_matrix_engine.py          # Test suite (20 tests)
-    ├── test_nutrient_cycling.py       # Nutrient cycling test suite (12 tests)
-    └── metaphor/                      # DEPRECATED - kept for backward compat
-        ├── __init__.py                # Deprecation warning
-        └── ...                        # Legacy modular catalog files
+├── epistemological-matrix/
+│   ├── README.md                      # Module documentation
+│   ├── __main__.py                    # CLI interface / self-analysis demo
+│   ├── data/
+│   │   ├── metaphors.yaml             # Canonical metaphor catalog (13 metaphors, YAML)
+│   │   └── dependency_chains.yaml     # Dependency chain definitions (YAML)
+│   ├── yaml_loader.py                 # YAML loading and validation
+│   ├── matrix_engine.py               # MatrixEngine (extends ResonanceEngine)
+│   ├── reified_metaphor_library.py    # Library interface (loads from YAML)
+│   ├── integrated_example.py          # Working demonstration
+│   ├── nutrient_cycling.py            # Nutrient cycling physics equations (N, P, K, soil, food security)
+│   ├── options.md                     # UNTESTED proposals (not legacy — see METHOD.md unknowns)
+│   ├── test_matrix_engine.py          # Test suite (20 tests)
+│   └── test_nutrient_cycling.py       # Nutrient cycling test suite (12 tests)
+└── legacy/                            # SUPERSEDED — record, not API. See legacy/README.md
+    ├── README.md                      # What each item was, what replaced it, which ledger entry
+    └── metaphor/                      # Modular Python catalog, superseded by data/*.yaml (E-001)
 ```
 
 ## Tech Stack
@@ -148,15 +153,17 @@ is_coherent = snr > (1.0 - 0.15)
 - `MatrixEngine` inherits from `ResonanceEngine`.
 - Metaphor data lives in YAML (`data/`), loaded by `yaml_loader.py`, exported through `reified_metaphor_library.py`.
 - `integrated_example.py` imports `MatrixEngine` — it does not duplicate the class.
-- The `metaphor/` package is deprecated. It still works but emits a `DeprecationWarning`.
+- `legacy/` holds superseded code, kept as record. Nothing in the working tree imports it, and `legacy/metaphor/` does not import at all (flat imports — this is preserved deliberately, see `METHOD.md` E-001). Do not repair or re-integrate it.
 - Detection uses a two-pass algorithm: Pass 1 scores each metaphor individually, Pass 2 adds co-occurrence boosts.
 - Entropy uses a logistic saturation curve ensuring asymptotic bounds without `min(1.0, ...)` clamping.
 
 ## Development Guidelines
 
+- Read `METHOD.md` before changing any model or constant. It records what has already been run and falsified, and the constants that are shape choices rather than fitted values. Re-deriving a falsified model is the main failure mode here.
 - Read `Executive-summary.md` for philosophical context before structural changes.
+- When a claim is falsified: add a ledger entry to `METHOD.md`, `git mv` the superseded code into `legacy/` (never delete it), and document it in `legacy/README.md`. Untested proposals are not legacy — they go under *Open unknowns* in `METHOD.md`.
 - When adding metaphors, edit `data/metaphors.yaml` — include all 8 fields plus the dependency chain in `data/dependency_chains.yaml`.
 - Use named constants for any formula parameters.
-- Run `PYTHONPATH="..:." python test_matrix_engine.py` to verify changes (17 tests).
+- Run `PYTHONPATH="..:." python test_matrix_engine.py` (20 tests) and `python test_nutrient_cycling.py` (12 tests) to verify changes.
 - Context patterns (`reified_contexts`, `functional_contexts`) are the primary lever for improving detection quality.
 - Contributions welcome in: new metaphors (especially non-Western contexts), improved context patterns, additional dependency chains, and non-English language support.
