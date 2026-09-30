@@ -167,3 +167,17 @@ is_coherent = snr > (1.0 - 0.15)
 - Run `PYTHONPATH="..:." python test_matrix_engine.py` (20 tests) and `python test_nutrient_cycling.py` (12 tests) to verify changes.
 - Context patterns (`reified_contexts`, `functional_contexts`) are the primary lever for improving detection quality.
 - Contributions welcome in: new metaphors (especially non-Western contexts), improved context patterns, additional dependency chains, and non-English language support.
+
+<!-- clone-refspec-note v1 -->
+## Cloning and pushing
+Shallow clones are single-branch by default.
+Before pushing any branch other than main, run:
+
+    git config remote.origin.fetch '+refs/heads/*:refs/remotes/origin/*'
+    git fetch --depth 1
+
+Or clone with: git clone --depth 1 --no-single-branch <url>
+Without this, the first push of a new branch
+fails the tracking-ref check even when the
+commit landed.
+<!-- /clone-refspec-note v1 -->
